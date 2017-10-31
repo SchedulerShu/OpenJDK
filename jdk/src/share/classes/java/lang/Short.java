@@ -45,12 +45,14 @@ public final class Short extends Number implements Comparable<Short> {
     /**
      * A constant holding the minimum value a {@code short} can
      * have, -2<sup>15</sup>.
+     * MIN_VALUE静态变量表示short能去的最小值，为-32768（-2的15此方），被final修饰说明不可变。
      */
     public static final short   MIN_VALUE = -32768;
 
     /**
      * A constant holding the maximum value a {@code short} can
      * have, 2<sup>15</sup>-1.
+     *类似的还有MAX_VALUE，表示short最大值为32767（2的15次方减1）。
      */
     public static final short   MAX_VALUE = 32767;
 
@@ -448,6 +450,7 @@ public final class Short extends Number implements Comparable<Short> {
      * The number of bits used to represent a {@code short} value in two's
      * complement binary form.
      * @since 1.5
+     * SIZE用来表示二进制补码形式的short值的比特数，值为16，静态变量且不可变
      */
     public static final int SIZE = 16;
 
