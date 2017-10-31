@@ -66,6 +66,9 @@ import java.lang.reflect.Array;
  * @see     List
  * @see     Map
  * @since   1.2
+
+ * Collections (java.util.Collections) 工具类包含了很多有关集合操作的静态方法，
+ * 使用这些方法能帮我们简化代码。
  */
 
 public class Collections {
@@ -461,6 +464,8 @@ public class Collections {
      * @param  list the list to be shuffled.
      * @throws UnsupportedOperationException if the specified list or
      *         its list-iterator does not support the <tt>set</tt> operation.
+
+     * 随机打乱原来的顺序
      */
     public static void shuffle(List<?> list) {
         Random rnd = r;
@@ -726,6 +731,8 @@ public class Collections {
      *         not <i>mutually comparable</i> using the specified comparator.
      * @throws NoSuchElementException if the collection is empty.
      * @see Comparable
+     *
+     * 获取List中的最大值
      */
     public static <T> T max(Collection<? extends T> coll, Comparator<? super T> comp) {
         if (comp==null)
@@ -1594,6 +1601,7 @@ public class Collections {
 
     /**
      * @serial include
+     * 如果你需要将一个集合的所有操作都设置为线程安全的，Collections.synchronizedXXX() 是一种方法。
      */
     static class SynchronizedCollection<E> implements Collection<E>, Serializable {
         private static final long serialVersionUID = 3053995032091335093L;

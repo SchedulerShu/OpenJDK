@@ -30,12 +30,21 @@ package java.lang;
  * Every class has {@code Object} as a superclass. All objects,
  * including arrays, implement the methods of this class.
  *
+ * Java的Object是所有其他类的父类，从继承的层次来看它就是最顶层根，所以它也是唯一一个没有父类的类。
+ * 它包含了对象常用的一些方法，比如getClass、hashCode、equals、clone、toString、notify、wait等常用方法。
+ * 所以其他类继承了Object后就可以不用重复实现这些方法。这些方法大多数是native方法，下面具体分析。
+ *
  * @author  unascribed
  * @see     java.lang.Class
  * @since   JDK1.0
  */
 public class Object {
 
+	/*
+	* 由于registerNatives方法被static块修饰，
+	* 所以在加载Object类时就会执行该方法，对应的本地方法为Java_java_lang_Object_registerNatives
+	*/
+	
     private static native void registerNatives();
     static {
         registerNatives();
@@ -232,6 +241,9 @@ public class Object {
      * </pre></blockquote>
      *
      * @return  a string representation of the object.
+
+     
+     * 逻辑是获取class名称加上@再加上十六进制的hashCode。
      */
     public String toString() {
         return getClass().getName() + "@" + Integer.toHexString(hashCode());
