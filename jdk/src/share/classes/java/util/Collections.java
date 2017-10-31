@@ -255,6 +255,7 @@ public class Collections {
      *         <i>mutually comparable</i> (for example, strings and
      *         integers), or the search key is not mutually comparable
      *         with the elements of the list.
+	 * 使用二分搜索法，以获得指定对象在List中的索引，前提是集合已经排序
      */
     public static <T>
     int binarySearch(List<? extends Comparable<? super T>> list, T key) {
@@ -420,6 +421,8 @@ public class Collections {
      * @param  list the list whose elements are to be reversed.
      * @throws UnsupportedOperationException if the specified list or
      *         its list-iterator does not support the <tt>set</tt> operation.
+
+     * 反转指定List集合中元素的顺序
      */
     public static void reverse(List<?> list) {
         int size = list.size();
@@ -531,6 +534,8 @@ public class Collections {
      *         is out of range (i &lt; 0 || i &gt;= list.size()
      *         || j &lt; 0 || j &gt;= list.size()).
      * @since 1.4
+
+     *将指定List集合中i处元素和j出元素进行交换
      */
     public static void swap(List<?> list, int i, int j) {
         final List l = list;
@@ -539,6 +544,7 @@ public class Collections {
 
     /**
      * Swaps the two specified elements in the specified array.
+     * 将指定arr数组中i处元素和j出元素进行交换
      */
     private static void swap(Object[] arr, int i, int j) {
         Object tmp = arr[i];
@@ -627,6 +633,7 @@ public class Collections {
      *         integers).
      * @throws NoSuchElementException if the collection is empty.
      * @see Comparable
+     * 返回最小元素
      */
     public static <T extends Object & Comparable<? super T>> T min(Collection<? extends T> coll) {
         Iterator<? extends T> i = coll.iterator();
