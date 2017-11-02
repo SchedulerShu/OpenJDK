@@ -119,6 +119,9 @@ import java.io.*;
  * @see     TreeMap
  * @see     Hashtable
  * @since   1.2
+
+
+ * hash 散列将一个任意的长度通过
  */
 
 public class HashMap<K,V>
@@ -128,23 +131,33 @@ public class HashMap<K,V>
 
     /**
      * The default initial capacity - MUST be a power of two.
+     * 默认的初始容量是16，必须是2的幂。
      */
-    static final int DEFAULT_INITIAL_CAPACITY = 16;
+    static final int DEFAULT_INITIAL_CAPACITY = 16; //1<<4
 
     /**
      * The maximum capacity, used if a higher value is implicitly specified
      * by either of the constructors with arguments.
      * MUST be a power of two <= 1<<30.
+     * 最大容量（必须是2的幂且小于2的30次方，传入容量过大将被这个值替换）
      */
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
      * The load factor used when none specified in constructor.
+     
+       当一个map填满了75%的bucket时候，和其它集合类(如ArrayList等)一样，
+       将会创建原来HashMap大小的两倍的bucket数组，来重新调整map的大小，
+       并将原来的对象放入新的bucket数组中
+       
      */
-    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f; //默认的负载因子大小为0.75
 
     /**
      * The table, resized as necessary. Length MUST Always be a power of two.
+     
+     * 存储数据的Entry数组，长度是2的幂。
+     * HashMap是采用拉链法实现的，每一个Entry本质上是一个单向链表
      */
     transient Entry[] table;
 
@@ -156,15 +169,16 @@ public class HashMap<K,V>
     /**
      * The next size value at which to resize (capacity * load factor).
      * @serial
+       HashMap的阈值，用于判断是否需要调整HashMap的容量（threshold = 容量*加载因子）
      */
     int threshold;
 
     /**
      * The load factor for the hash table.
-     *
+     * 加载因子实际大小
      * @serial
      */
-    final float loadFactor;
+    final float loadFactor;// 加载因子实际大小
 
     /**
      * The number of times this HashMap has been structurally modified
@@ -173,7 +187,7 @@ public class HashMap<K,V>
      * rehash).  This field is used to make iterators on Collection-views of
      * the HashMap fail-fast.  (See ConcurrentModificationException).
      */
-    transient volatile int modCount;
+    transient volatile int modCount; //HashMap被改变的次数
 
     /**
      * Constructs an empty <tt>HashMap</tt> with the specified initial
@@ -183,25 +197,32 @@ public class HashMap<K,V>
      * @param  loadFactor      the load factor
      * @throws IllegalArgumentException if the initial capacity is negative
      *         or the load factor is nonpositive
+
+       指定“容量大小”和“加载因子”的构造函数
      */
     public HashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: " +
                                                initialCapacity);
+		 // HashMap的最大容量只能是MAXIMUM_CAPACITY
         if (initialCapacity > MAXIMUM_CAPACITY)
-            initialCapacity = MAXIMUM_CAPACITY;
+            initialCapacity = MAXIMUM_CAPACITY; 
         if (loadFactor <= 0 || Float.isNaN(loadFactor))
             throw new IllegalArgumentException("Illegal load factor: " +
                                                loadFactor);
 
         // Find a power of 2 >= initialCapacity
+        // 找出“大于initialCapacity”的最小的2的幂
         int capacity = 1;
         while (capacity < initialCapacity)
             capacity <<= 1;
 
-        this.loadFactor = loadFactor;
+        this.loadFactor = loadFactor;// 设置“加载因子”
+        
+        //设置“HashMap阈值”，当HashMap中存储数据的数量达到threshold时，
+        //就需要将HashMap的容量加倍。
         threshold = (int)(capacity * loadFactor);
-        table = new Entry[capacity];
+        table = new Entry[capacity];// 创建Entry数组，用来保存数据
         init();
     }
 
@@ -211,6 +232,8 @@ public class HashMap<K,V>
      *
      * @param  initialCapacity the initial capacity.
      * @throws IllegalArgumentException if the initial capacity is negative.
+
+       指定“容量大小”的构造函数
      */
     public HashMap(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
@@ -221,9 +244,9 @@ public class HashMap<K,V>
      * (16) and the default load factor (0.75).
      */
     public HashMap() {
-        this.loadFactor = DEFAULT_LOAD_FACTOR;
-        threshold = (int)(DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
-        table = new Entry[DEFAULT_INITIAL_CAPACITY];
+        this.loadFactor = DEFAULT_LOAD_FACTOR;// 设置“加载因子”
+        threshold = (int)(DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);// 创建Entry数组，用来保存数据
+        table = new Entry[DEFAULT_INITIAL_CAPACITY]; // 创建Entry数组，用来保存数据
         init();
     }
 
@@ -235,11 +258,14 @@ public class HashMap<K,V>
      *
      * @param   m the map whose mappings are to be placed in this map
      * @throws  NullPointerException if the specified map is null
+
+       包含“子Map”的构造函数
      */
     public HashMap(Map<? extends K, ? extends V> m) {
         this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,
                       DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
-        putAllForCreate(m);
+		//将m中的全部元素逐个添加到HashMap中
+		putAllForCreate(m);
     }
 
     // internal utilities
@@ -271,6 +297,7 @@ public class HashMap<K,V>
 
     /**
      * Returns index for hash code h.
+       返回索引值,h & (length-1)保证返回值的小于length
      */
     static int indexFor(int h, int length) {
         return h & (length-1);
@@ -314,7 +341,9 @@ public class HashMap<K,V>
     public V get(Object key) {
         if (key == null)
             return getForNullKey();
-        int hash = hash(key.hashCode());
+        int hash = hash(key.hashCode());// 获取key的hash值
+        
+        // 在“该hash值对应的链表”上查找“键值等于key”的元素
         for (Entry<K,V> e = table[indexFor(hash, table.length)];
              e != null;
              e = e.next) {
@@ -331,8 +360,11 @@ public class HashMap<K,V>
      * for the sake of performance in the two most commonly used
      * operations (get and put), but incorporated with conditionals in
      * others.
+
+       获取“key为null”的元素的值
      */
     private V getForNullKey() {
+    	 // HashMap将“key为null”的元素存储在table[0]位置！
         for (Entry<K,V> e = table[0]; e != null; e = e.next) {
             if (e.key == null)
                 return e.value;
@@ -347,6 +379,7 @@ public class HashMap<K,V>
      * @param   key   The key whose presence in this map is to be tested
      * @return <tt>true</tt> if this map contains a mapping for the specified
      * key.
+       HashMap是否包含key
      */
     public boolean containsKey(Object key) {
         return getEntry(key) != null;
@@ -356,9 +389,10 @@ public class HashMap<K,V>
      * Returns the entry associated with the specified key in the
      * HashMap.  Returns null if the HashMap contains no mapping
      * for the key.
+       // 返回“键为key”的键值对
      */
     final Entry<K,V> getEntry(Object key) {
-        int hash = (key == null) ? 0 : hash(key.hashCode());
+        int hash = (key == null) ? 0 : hash(key.hashCode());// 获取哈希值
         for (Entry<K,V> e = table[indexFor(hash, table.length)];
              e != null;
              e = e.next) {
@@ -382,6 +416,7 @@ public class HashMap<K,V>
      *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
      *         (A <tt>null</tt> return can also indicate that the map
      *         previously associated <tt>null</tt> with <tt>key</tt>.)
+     // 将“key-value”添加到HashMap中
      */
     public V put(K key, V value) {
         if (key == null)
@@ -688,14 +723,21 @@ public class HashMap<K,V>
         return result;
     }
 
+	/**
+	 * Entry是单向链表。它是 “HashMap链式存储法”对应的链表。
+	 * 它实现了Map.Entry 接口，即实现getKey(), getValue(), setValue(V value), 
+	 * equals(Object o), hashCode()这些函数
+	 */
     static class Entry<K,V> implements Map.Entry<K,V> {
-        final K key;
+        final K key;  
         V value;
-        Entry<K,V> next;
-        final int hash;
+        Entry<K,V> next;    // 指向下一个节点
+        final int hash;     //用来定位数组索引位置
 
         /**
          * Creates new entry.
+         * 构造函数。
+         * 输入参数包括"哈希值(h)", "键(k)", "值(v)", "下一节点(n)"
          */
         Entry(int h, K k, V v, Entry<K,V> n) {
             value = v;
@@ -717,7 +759,10 @@ public class HashMap<K,V>
             value = newValue;
             return oldValue;
         }
-
+		/**
+		 * 判断两个Entry是否相等
+         * 若两个Entry的“key”和“value”都相等，则返回true。
+		 */
         public final boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -1054,3 +1099,11 @@ public class HashMap<K,V>
     float loadFactor()   { return loadFactor;   }
 }
 
+
+/**
+ * Hashmap 问题：
+ * 1，HashMap最多只允许一条记录的键为null，允许多条记录的值为null；
+ * 2，HashMap非线程安全，即任一时刻可以有多个线程同时写HashMap，可能会导致数据的不一致；
+ * 3，如果需要满足线程安全，可以用 Collections的synchronizedMap方法使HashMap具有线程安全的能力，或者使用ConcurrentHashMap。
+ * 4，
+ */

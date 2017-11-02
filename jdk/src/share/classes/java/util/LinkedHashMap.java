@@ -149,6 +149,12 @@ import java.io.*;
  * @see     Hashtable
  * @since   1.4
  */
+/**
+ * LinkedHashMap：LinkedHashMap是HashMap的一个子类，保存了记录的插入顺序，
+ * 在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的，也可以在构造时带参数，
+ * 按照访问次序排序。
+ *
+ */
 
 // 充分利用 `多态`，和HashMap操作数据的方法完全一样
 public class LinkedHashMap<K,V>
