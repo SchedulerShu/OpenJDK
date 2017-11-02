@@ -71,6 +71,11 @@ import java.util.*;
  * @since 1.5
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
+
+   ArrayBlockingQueue 是一个使用数组实现的、有界的队列，一旦创建后，容量不可变.
+   队列中的元素按 FIFO 的顺序，每次取元素从头部取，加元素加到尾部。
+   默认情况下 ArrayBlockingQueue 不保证线程公平的访问队列，即在队列可用时，阻塞的线程都可以争夺访问队列的资格。
+   
  */
 public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
@@ -83,16 +88,20 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      */
     private static final long serialVersionUID = -817911632652898426L;
 
+	//使用数组保存的元素
     /** The queued items */
     final Object[] items;
 
     /** items index for next take, poll, peek or remove */
+	//下一次取元素的索引
     int takeIndex;
-
+	
     /** items index for next put, offer, or add */
+	//下一次添加元素的索引
     int putIndex;
 
     /** Number of elements in the queue */
+	//当前队列中元素的个数
     int count;
 
     /*
@@ -101,10 +110,13 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      */
 
     /** Main lock guarding all access */
-    final ReentrantLock lock;
+	//全部操作的锁
+    final ReentrantLock lock; 
     /** Condition for waiting takes */
+	//等待获取元素的锁
     private final Condition notEmpty;
     /** Condition for waiting puts */
+	//等待添加元素的锁
     private final Condition notFull;
 
     // Internal helper methods
@@ -199,6 +211,15 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         notFull.signal();
     }
 
+
+	/**
+	 * 默认的构造函数只指定了队列的容量，设置为非公平的线程访问策略
+	 * 第二种构造函数中，使用 ReentrantLock 创建了 2 个 Condition 锁
+     * 第三种构造函数可以在创建队列时，将指定的元素添加到队列中
+	 */
+
+
+
     /**
      * Creates an {@code ArrayBlockingQueue} with the given (fixed)
      * capacity and default access policy.
@@ -206,6 +227,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * @param capacity the capacity of this queue
      * @throws IllegalArgumentException if {@code capacity < 1}
      */
+     //指定队列的容量，使用非公平锁
     public ArrayBlockingQueue(int capacity) {
         this(capacity, false);
     }
@@ -245,6 +267,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * @throws NullPointerException if the specified collection or any
      *         of its elements are null
      */
+     //允许使用一个 Collection 来作为队列的默认元素
     public ArrayBlockingQueue(int capacity, boolean fair,
                               Collection<? extends E> c) {
         this(capacity, fair);
@@ -254,7 +277,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         try {
             int i = 0;
             try {
-                for (E e : c) {
+                for (E e : c) {   //遍历添加指定集合的元素
                     checkNotNull(e);
                     items[i++] = e;
                 }
@@ -262,7 +285,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 throw new IllegalArgumentException();
             }
             count = i;
-            putIndex = (i == capacity) ? 0 : i;
+            putIndex = (i == capacity) ? 0 : i; //修改 putIndex 为 c 的容量 +1
         } finally {
             lock.unlock();
         }
