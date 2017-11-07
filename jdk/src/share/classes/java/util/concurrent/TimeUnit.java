@@ -67,9 +67,14 @@ package java.util.concurrent;
  *
  * @since 1.5
  * @author Doug Lea
+
+ * TimeUnit是java.util.concurrent包下面的一个类，表示给定单元粒度的时间段
+ 	主要作用：
+		时间颗粒度转换
+		延时
  */
 public enum TimeUnit {
-    NANOSECONDS {
+    NANOSECONDS { //奈秒；毫微秒
         public long toNanos(long d)   { return d; }
         public long toMicros(long d)  { return d/(C1/C0); }
         public long toMillis(long d)  { return d/(C2/C0); }
@@ -80,7 +85,7 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toNanos(d); }
         int excessNanos(long d, long m) { return (int)(d - (m*C2)); }
     },
-    MICROSECONDS {
+    MICROSECONDS { //微秒
         public long toNanos(long d)   { return x(d, C1/C0, MAX/(C1/C0)); }
         public long toMicros(long d)  { return d; }
         public long toMillis(long d)  { return d/(C2/C1); }
@@ -91,7 +96,7 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMicros(d); }
         int excessNanos(long d, long m) { return (int)((d*C1) - (m*C2)); }
     },
-    MILLISECONDS {
+    MILLISECONDS {  //毫秒
         public long toNanos(long d)   { return x(d, C2/C0, MAX/(C2/C0)); }
         public long toMicros(long d)  { return x(d, C2/C1, MAX/(C2/C1)); }
         public long toMillis(long d)  { return d; }
@@ -102,7 +107,7 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMillis(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-    SECONDS {
+    SECONDS {  //秒
         public long toNanos(long d)   { return x(d, C3/C0, MAX/(C3/C0)); }
         public long toMicros(long d)  { return x(d, C3/C1, MAX/(C3/C1)); }
         public long toMillis(long d)  { return x(d, C3/C2, MAX/(C3/C2)); }
@@ -113,7 +118,7 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toSeconds(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-    MINUTES {
+    MINUTES {  //分
         public long toNanos(long d)   { return x(d, C4/C0, MAX/(C4/C0)); }
         public long toMicros(long d)  { return x(d, C4/C1, MAX/(C4/C1)); }
         public long toMillis(long d)  { return x(d, C4/C2, MAX/(C4/C2)); }
@@ -124,26 +129,26 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMinutes(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-    HOURS {
+    HOURS {   //小时
         public long toNanos(long d)   { return x(d, C5/C0, MAX/(C5/C0)); }
         public long toMicros(long d)  { return x(d, C5/C1, MAX/(C5/C1)); }
         public long toMillis(long d)  { return x(d, C5/C2, MAX/(C5/C2)); }
         public long toSeconds(long d) { return x(d, C5/C3, MAX/(C5/C3)); }
         public long toMinutes(long d) { return x(d, C5/C4, MAX/(C5/C4)); }
         public long toHours(long d)   { return d; }
-        public long toDays(long d)    { return d/(C6/C5); }
-        public long convert(long d, TimeUnit u) { return u.toHours(d); }
+        public long toDays(long d)    { return d/(C6/C5); }					//转化成天
+        public long convert(long d, TimeUnit u) { return u.toHours(d); }    //转化成小时 TimeUnit.HOURS.convert( 3 , TimeUnit.DAYS )
         int excessNanos(long d, long m) { return 0; }
     },
-    DAYS {
+    DAYS {	//天
         public long toNanos(long d)   { return x(d, C6/C0, MAX/(C6/C0)); }
         public long toMicros(long d)  { return x(d, C6/C1, MAX/(C6/C1)); }
-        public long toMillis(long d)  { return x(d, C6/C2, MAX/(C6/C2)); }
-        public long toSeconds(long d) { return x(d, C6/C3, MAX/(C6/C3)); }
-        public long toMinutes(long d) { return x(d, C6/C4, MAX/(C6/C4)); }
-        public long toHours(long d)   { return x(d, C6/C5, MAX/(C6/C5)); }
+        public long toMillis(long d)  { return x(d, C6/C2, MAX/(C6/C2)); }  //转化成毫秒  
+        public long toSeconds(long d) { return x(d, C6/C3, MAX/(C6/C3)); }  //转化成秒  
+        public long toMinutes(long d) { return x(d, C6/C4, MAX/(C6/C4)); }	//转化成分
+        public long toHours(long d)   { return x(d, C6/C5, MAX/(C6/C5)); }	//转化成小时  TimeUnit.DAYS.toHours( 1 ) 
         public long toDays(long d)    { return d; }
-        public long convert(long d, TimeUnit u) { return u.toDays(d); }
+        public long convert(long d, TimeUnit u) { return u.toDays(d); }     //转化成天
         int excessNanos(long d, long m) { return 0; }
     };
 
@@ -265,6 +270,8 @@ public enum TimeUnit {
      * overflow, or <tt>Long.MAX_VALUE</tt> if it would positively overflow.
      * @see #convert
      * @since 1.6
+
+     * 转化成小时
      */
     public long toHours(long duration) {
         throw new AbstractMethodError();
@@ -333,6 +340,7 @@ public enum TimeUnit {
      * @param timeout the maximum time to wait. If less than
      * or equal to zero, do not wait at all.
      * @throws InterruptedException if interrupted while waiting
+     
      */
     public void timedJoin(Thread thread, long timeout)
             throws InterruptedException {
@@ -352,6 +360,9 @@ public enum TimeUnit {
      * @param timeout the minimum time to sleep. If less than
      * or equal to zero, do not sleep at all.
      * @throws InterruptedException if interrupted while sleeping
+
+     * example:
+     	TimeUnit.SECONDS.sleep( 5 ); 
      */
     public void sleep(long timeout) throws InterruptedException {
         if (timeout > 0) {
