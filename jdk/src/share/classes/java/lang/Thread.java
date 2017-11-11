@@ -279,8 +279,9 @@ class Thread implements Runnable {
      * concurrency control constructs such as the ones in the
      * {@link java.util.concurrent.locks} package.
      */
+     //Thread.yield() 方法作用是：暂停当前正在实行的线程，并将其变成可运行线程，
+     //再从可运行线程池里面随机选择一个线程作为运行线程。
     public static native void yield();
-
     /**
      * Causes the currently executing thread to sleep (temporarily cease
      * execution) for the specified number of milliseconds, subject to

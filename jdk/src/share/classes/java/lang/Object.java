@@ -281,7 +281,7 @@ public class Object {
      * @see        java.lang.Object#notifyAll()
      * @see        java.lang.Object#wait()
      */
-    public final native void notify();
+    public final native void notify();//唤醒在此对象监视器上等待的单个线程
 
     /**
      * Wakes up all threads that are waiting on this object's monitor. A
@@ -391,7 +391,7 @@ public class Object {
      *             this exception is thrown.
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#notifyAll()
-     */
+     *///使当前的线程等待，直到其他线程调用此对象的 notify()方法或 notifyAll()方法
     public final native void wait(long timeout) throws InterruptedException;
 
     /**
