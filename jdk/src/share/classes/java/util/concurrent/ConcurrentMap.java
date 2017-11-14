@@ -55,7 +55,7 @@ import java.util.Map;
  * @author Doug Lea
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
- */
+ */ //接口表示了一个能够对别人的访问（插入和提取）进行并发处理的 Map。
 public interface ConcurrentMap<K, V> extends Map<K, V> {
     /**
      * If the specified key is not already associated

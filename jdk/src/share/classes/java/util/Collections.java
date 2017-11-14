@@ -255,6 +255,7 @@ public class Collections {
      *         <i>mutually comparable</i> (for example, strings and
      *         integers), or the search key is not mutually comparable
      *         with the elements of the list.
+     
 	 * 使用二分搜索法，以获得指定对象在List中的索引，前提是集合已经排序
      */
     public static <T>
@@ -1048,6 +1049,7 @@ public class Collections {
      *         returned.
      * @return an unmodifiable view of the specified collection.
      */
+     //它可以返回一个容器的包装类
     public static <T> Collection<T> unmodifiableCollection(Collection<? extends T> c) {
         return new UnmodifiableCollection<>(c);
     }
@@ -1065,7 +1067,7 @@ public class Collections {
                 throw new NullPointerException();
             this.c = c;
         }
-
+		//添加、替换、删除操作都会抛出异常 UnsupportedOperationException
         public int size()                   {return c.size();}
         public boolean isEmpty()            {return c.isEmpty();}
         public boolean contains(Object o)   {return c.contains(o);}
@@ -1079,12 +1081,15 @@ public class Collections {
 
                 public boolean hasNext() {return i.hasNext();}
                 public E next()          {return i.next();}
-                public void remove() {
+                public void remove() {   //迭代器的 remove 也不支持
                     throw new UnsupportedOperationException();
                 }
             };
         }
 
+		/*
+		 * 添加、替换、删除操作都会抛出异常 UnsupportedOperationException
+		 */
         public boolean add(E e) {
             throw new UnsupportedOperationException();
         }
@@ -1608,13 +1613,14 @@ public class Collections {
 
     /**
      * @serial include
+     * 
      * 如果你需要将一个集合的所有操作都设置为线程安全的，Collections.synchronizedXXX() 是一种方法。
      */
     static class SynchronizedCollection<E> implements Collection<E>, Serializable {
         private static final long serialVersionUID = 3053995032091335093L;
 
-        final Collection<E> c;  // Backing Collection
-        final Object mutex;     // Object on which to synchronize
+        final Collection<E> c;  // Backing Collection // 实际的集合
+        final Object mutex;     // Object on which to synchronize   // 同步的对象
 
         SynchronizedCollection(Collection<E> c) {
             if (c==null)
@@ -1863,7 +1869,7 @@ public class Collections {
     }
 
     /**
-     * @serial include
+     * @serial include  将一个集合的所有操作都设置为线程安全的
      */
     static class SynchronizedList<E>
         extends SynchronizedCollection<E>
