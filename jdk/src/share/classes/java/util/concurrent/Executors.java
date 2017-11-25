@@ -67,6 +67,7 @@ import sun.security.util.SecurityConstants;
  *
  * @since 1.5
  * @author Doug Lea
+ * 工具类，里面的方法都是静态方法，如以下我们最常用的用于生成 ThreadPoolExecutor 的实例
  */
 public class Executors {
 
@@ -130,6 +131,7 @@ public class Executors {
      *
      * @return the newly created single-threaded Executor
      */
+     创建一个单线程化的Executor。
     public static ExecutorService newSingleThreadExecutor() {
         return new FinalizableDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,

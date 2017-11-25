@@ -137,5 +137,5 @@ public interface Executor {
      * accepted for execution.
      * @throws NullPointerException if command is null
      */
-    void execute(Runnable command);
+    void execute(Runnable command);//代表提交一个任务
 }

@@ -67,6 +67,8 @@ import java.util.*;
  *
  * @since 1.5
  * @author Doug Lea
+ 
+ * 需要获取结果（FutureTask），用 submit 方法，不需要获取结果，可以用 execute 方法。
  */
 public abstract class AbstractExecutorService implements ExecutorService {
 
@@ -81,6 +83,10 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * the given value as its result and provide for cancellation of
      * the underlying task.
      * @since 1.6
+
+     // RunnableFuture 是用于获取执行结果的，我们常用它的子类 FutureTask
+     // 下面两个 newTaskFor 方法用于将我们的任务包装成 FutureTask 提交到线程池中执行
+
      */
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return new FutureTask<T>(runnable, value);
@@ -103,10 +109,16 @@ public abstract class AbstractExecutorService implements ExecutorService {
     /**
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
+
+	 * 提交任务
+
      */
+     
     public Future<?> submit(Runnable task) {
         if (task == null) throw new NullPointerException();
+		// 1. 将任务包装成 FutureTask ,FutureTask 间接实现了Runnable 接口。
         RunnableFuture<Void> ftask = newTaskFor(task, null);
+		// 2. 交给执行器执行，execute 方法由具体的子类来实现
         execute(ftask);
         return ftask;
     }
@@ -117,8 +129,8 @@ public abstract class AbstractExecutorService implements ExecutorService {
      */
     public <T> Future<T> submit(Runnable task, T result) {
         if (task == null) throw new NullPointerException();
-        RunnableFuture<T> ftask = newTaskFor(task, result);
-        execute(ftask);
+        RunnableFuture<T> ftask = newTaskFor(task, result);  // 1. 将任务包装成 FutureTask
+        execute(ftask);// 2. 交给执行器执行
         return ftask;
     }
 
@@ -135,17 +147,28 @@ public abstract class AbstractExecutorService implements ExecutorService {
 
     /**
      * the main mechanics of invokeAny.
+
+     * // 此方法目的：将 tasks 集合中的任务提交到线程池执行，任意一个线程执行完后就可以结束了
+       // 第二个参数 timed 代表是否设置超时机制，超时时间为第三个参数，
+       // 如果 timed 为 true，同时超时了还没有一个线程返回结果，那么抛出 TimeoutException 异常
+
      */
     private <T> T doInvokeAny(Collection<? extends Callable<T>> tasks,
                             boolean timed, long nanos)
         throws InterruptedException, ExecutionException, TimeoutException {
+        
         if (tasks == null)
             throw new NullPointerException();
-        int ntasks = tasks.size();
+        int ntasks = tasks.size(); // 任务数
         if (ntasks == 0)
             throw new IllegalArgumentException();
+		
         List<Future<T>> futures= new ArrayList<Future<T>>(ntasks);
-        ExecutorCompletionService<T> ecs =
+
+		// ExecutorCompletionService 不是一个真正的执行器，参数 this 才是真正的执行器
+        // 它对执行器进行了包装，每个任务结束后，将结果保存到内部的一个 completionQueue 队列中
+        // 这也是为什么这个类的名字里面有个 Completion 的原因吧。
+		ExecutorCompletionService<T> ecs =
             new ExecutorCompletionService<T>(this);
 
         // For efficiency, especially in executors with limited
@@ -157,11 +180,13 @@ public abstract class AbstractExecutorService implements ExecutorService {
         try {
             // Record exceptions so that if we fail to obtain any
             // result, we can throw the last exception we got.
+            // 用于保存异常信息，此方法如果没有得到任何有效的结果，那么我们可以抛出最后得到的一个异常
             ExecutionException ee = null;
             long lastTime = timed ? System.nanoTime() : 0;
             Iterator<? extends Callable<T>> it = tasks.iterator();
 
             // Start one task for sure; the rest incrementally
+            // 首先先提交一个任务，后面的任务到下面的 for 循环一个个提交
             futures.add(ecs.submit(it.next()));
             --ntasks;
             int active = 1;

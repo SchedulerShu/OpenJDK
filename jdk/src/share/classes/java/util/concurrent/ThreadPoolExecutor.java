@@ -1189,6 +1189,12 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *         {@code maximumPoolSize <= 0}<br>
      *         {@code maximumPoolSize < corePoolSize}
      * @throws NullPointerException if {@code workQueue} is null
+     *
+       corePoolSize：线程池中所保存的核心线程数，包括空闲线程。
+       maximumPoolSize：池中允许的最大线程数。
+       keepAliveTime：线程池中的空闲线程所能持续的最长时间。
+       unit：持续时间的单位。
+       workQueue：任务执行前保存任务的队列，仅保存由 execute 方法提交的 Runnable 任务。
      */
     public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,
