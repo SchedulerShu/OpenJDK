@@ -99,6 +99,10 @@ import java.io.ObjectStreamField;
  * @author Doug Lea
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
+
+
+ * Concurrent : 多线程并发推荐使用. 
+ 
  */
 public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         implements ConcurrentMap<K, V>, Serializable {
@@ -133,13 +137,13 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * The default initial capacity for this table,
      * used when not otherwise specified in a constructor.
      */
-    static final int DEFAULT_INITIAL_CAPACITY = 16;
+    static final int DEFAULT_INITIAL_CAPACITY = 16;//默认的数组大小16(HashMap里的那个数组)
 
     /**
      * The default load factor for this table, used when not
      * otherwise specified in a constructor.
      */
-    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;//扩容因子0.75
 
     /**
      * The default concurrency level for this table, used when not
@@ -248,7 +252,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     /**
      * The segments, each of which is a specialized hash table.
-     */
+     *///ConcurrentHashMap中的数组
     final Segment<K,V>[] segments;
 
     transient Set<K> keySet;

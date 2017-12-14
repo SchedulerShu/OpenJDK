@@ -143,7 +143,7 @@ class Thread implements Runnable {
     private static native void registerNatives();
     static {				//方法放在一个 static 语句块中，这就表明，当该类被加载到 JVM 中的时候，它就会被调用，进而注册相应的本地方法。
         registerNatives();  //主要的作用就是注册一些本地方法供 Thread 类使用如 start0()，stop0()
-    }				//本地方法 registerNatives 是定义在 Thread.c 文件中的
+    }						//本地方法 registerNatives 是定义在 Thread.c 文件中的
 
     private char        name[];
     private int         priority;
