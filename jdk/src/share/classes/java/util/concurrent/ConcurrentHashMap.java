@@ -149,7 +149,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * The default concurrency level for this table, used when not
      * otherwise specified in a constructor.
      */
-    static final int DEFAULT_CONCURRENCY_LEVEL = 16;
+    static final int DEFAULT_CONCURRENCY_LEVEL = 16;//默认并发标准16
 
     /**
      * The maximum capacity, used if a higher value is implicitly
@@ -157,7 +157,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * be a power of two <= 1<<30 to ensure that entries are indexable
      * using ints.
      */
-    static final int MAXIMUM_CAPACITY = 1 << 30;
+    static final int MAXIMUM_CAPACITY = 1 << 30; //1*2^30
 
     /**
      * The minimum capacity for per-segment tables.  Must be a power
@@ -263,6 +263,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * ConcurrentHashMap list entry. Note that this is never exported
      * out as a user-visible Map.Entry.
      */
+     //HashEntry对象，存key、value、hash值以及下一个节点
     static final class HashEntry<K,V> {
         final int hash;
         final K key;
@@ -351,6 +352,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * subclasses from ReentrantLock opportunistically, just to
      * simplify some locking and avoid separate construction.
      */
+     //Segment是ReentrantLock子类，因此拥有锁的操作
     static final class Segment<K,V> extends ReentrantLock implements Serializable {
         /*
          * Segments maintain a table of entry lists that are always
@@ -390,6 +392,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         static final int MAX_SCAN_RETRIES =
             Runtime.getRuntime().availableProcessors() > 1 ? 64 : 1;
 
+		//HashMap的那一套，分别是数组、键值对数量、阈值、负载因子
         /**
          * The per-segment table. Elements are accessed via
          * entryAt/setEntryAt providing volatile semantics.
@@ -809,29 +812,35 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         if (concurrencyLevel > MAX_SEGMENTS)
             concurrencyLevel = MAX_SEGMENTS;
         // Find power-of-two sizes best matching arguments
-        int sshift = 0;
+
+		int sshift = 0;
         int ssize = 1;
         while (ssize < concurrencyLevel) {
-            ++sshift;
-            ssize <<= 1;
-        }
-        this.segmentShift = 32 - sshift;
-        this.segmentMask = ssize - 1;
-        if (initialCapacity > MAXIMUM_CAPACITY)
+            ++sshift;   	//4
+            ssize <<= 1;   
+        }//ssize = 16
+        this.segmentShift = 32 - sshift;	//28
+        this.segmentMask = ssize - 1;		//15
+
+		if (initialCapacity > MAXIMUM_CAPACITY)
             initialCapacity = MAXIMUM_CAPACITY;
-        int c = initialCapacity / ssize;
+        int c = initialCapacity / ssize;  //c = 1;
         if (c * ssize < initialCapacity)
             ++c;
-        int cap = MIN_SEGMENT_TABLE_CAPACITY;
+        int cap = MIN_SEGMENT_TABLE_CAPACITY; //2
         while (cap < c)
             cap <<= 1;
         // create segments and segments[0]
+
         Segment<K,V> s0 =
             new Segment<K,V>(loadFactor, (int)(cap * loadFactor),
                              (HashEntry<K,V>[])new HashEntry[cap]);
+		
         Segment<K,V>[] ss = (Segment<K,V>[])new Segment[ssize];
         UNSAFE.putOrderedObject(ss, SBASE, s0); // ordered write of segments[0]
         this.segments = ss;
+
+		//上面部分创建了一个长度为16的Segment 数组，并初始化数组0号位置
     }
 
     /**
@@ -1124,9 +1133,12 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         Segment<K,V> s;
-        if (value == null)
+        if (value == null) //valus不能为空！！！
             throw new NullPointerException();
-        int hash = hash(key);
+		
+        int hash = hash(key);//根据key计算hash值，key也不能为null，否则hash(key)报空指针
+
+		//根据hash值计算在segments数组中的位置
         int j = (hash >>> segmentShift) & segmentMask;
         if ((s = (Segment<K,V>)UNSAFE.getObject          // nonvolatile; recheck
              (segments, (j << SSHIFT) + SBASE)) == null) //  in ensureSegment
